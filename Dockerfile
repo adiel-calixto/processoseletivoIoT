@@ -9,6 +9,7 @@ WORKDIR "/"
 # RUN mkdir -p /fs
 COPY src/main.py /main.py
 COPY src/mpu6050.py /mpu6050.py
+COPY src/ssd1306.py /ssd1306.py
 
 RUN git clone https://github.com/earlephilhower/mklittlefs.git && \
   cd mklittlefs && \
@@ -20,7 +21,7 @@ RUN cd mklittlefs && \
   mkdir -p ~/fs && \
   cp /main.py ~/fs/main.py && \
   cp /mpu6050.py ~/fs/mpu6050.py && \
-  #  cp /boot.py ~/fs/boot.py && \
+  cp /ssd1306.py ~/fs/ssd1306.py && \
   ./mklittlefs -c ~/fs -b 4096 -p 256 -s 0x200000 /fs.bin
 
 
