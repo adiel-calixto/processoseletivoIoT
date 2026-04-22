@@ -76,6 +76,8 @@ def calibrar():
 (mx, dx), (my, dy), (mz, dz) = calibrar()
 
 # Loop principal
+print("Monitorando...")
+
 while True:
     # Leitura do acelerômetro
     x, y, z = mpu.acceleration()
