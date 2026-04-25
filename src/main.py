@@ -1,5 +1,6 @@
 from ssd1306 import SSD1306_I2C
 from mpu6050 import MPU6050
+from machine import I2C, Pin
 import onewire, ds18x20
 import time, math
 
