@@ -1,4 +1,3 @@
-from machine import I2C, Pin
 from ssd1306 import SSD1306_I2C
 from mpu6050 import MPU6050
 import onewire, ds18x20
@@ -54,7 +53,8 @@ def calibrar():
     lx, ly, lz = [], [], []
 
     for i in range(AMOSTRAS):
-        x, y, z = mpu.acceleration()
+        accel = mpu.read_accel_data(g=True)
+        x, y, z = accel["x"], accel["y"], accel["z"]
         lx.append(x)
         ly.append(y)
         lz.append(z)
@@ -80,7 +80,8 @@ print("Monitorando...")
 
 while True:
     # Leitura do acelerômetro
-    x, y, z = mpu.acceleration()
+    accel = mpu.read_accel_data(g=True)
+    x, y, z = accel["x"], accel["y"], accel["z"]
     zx = zscore(x, mx, dx)
     zy = zscore(y, my, dy)
     zz = zscore(z, mz, dz)
