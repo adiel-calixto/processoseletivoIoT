@@ -229,91 +229,92 @@ Após concluir o desenvolvimento:
 
 ---
 
-## 📝 Relatório do Candidato
-
-O arquivo **`README.md` do seu repositório** deve ser utilizado como o  
-**relatório final do desafio técnico**.
-
-Preencha todas as seções abaixo de forma **clara, objetiva e técnica**.
-
-> 💡 **Dica importante**  
-> Não é necessário um relatório extenso.  
-> O principal critério é demonstrar **clareza nas decisões técnicas**, organização e entendimento do sistema embarcado desenvolvido.
+## Relatório do Candidato
 
 ---
 
 ### 👤 Identificação do Candidato
 
-- **Nome completo:**  
-- **GitHub:**  
+- **Nome completo:** José Adiel Calixto Serafim
+- **GitHub:** https://github.com/adiel-calixto
 
 ---
 
 ## 1️⃣ Visão Geral da Solução
 
-Descreva, em poucas palavras:
-
-- Qual é o objetivo do seu projeto  
-- O que o sistema embarcado simulado faz  
-- Como o usuário interage com ele (se aplicável)
+Sistema de **monitoramento industrial** baseado em ESP32 com MicroPython. Detecta anomalias de vibração (acelerômetro MPU6050) e temperatura (sensor DS18B20), alertando o operador via display OLED e buzzer.
 
 ---
 
 ## 2️⃣ Arquitetura do Sistema Embarcado
 
-Explique a arquitetura lógica do seu projeto, abordando:
+```
+┌──────────────────────────────────────────────┐
+│                  main.py                     │
+│                                              │
+│  Calibragem ──► Leitura contínua ──► Detecção│
+│      │                  │              │     │
+│      ▼                  ▼              ▼     │
+│   Média/Desvio      MPU6050         Alerta   │
+│   (referência)      DS18B20      OLED/Buzzer │
+└──────────────────────────────────────────────┘
+```
 
-- Fluxo principal do programa (`main.py`)  
-- Estrutura de estados, loops ou temporizações  
-- Como os componentes interagem entre si  
-
-Se desejar, utilize tópicos ou um pequeno diagrama em texto.
+**Fluxo principal:**
+1. `calibrar()` - Coleta 50 amostras do acelerômetro para estabelecer média e desvio padrão
+2. Loop infinito - Leitura contínua de aceleração (X/Y/Z) e temperatura
+3. `zscore()` - Calcula Z-Score para cada eixo, comparando com a calibração
+4. Detecção de anomalia - Vibração (z-score > 2.5) ou temperatura (> 60°C)
+5. Alerta - Display OLED exibe status e motivo; buzzer emite beep
 
 ---
 
 ## 3️⃣ Componentes Utilizados na Simulação
 
-Liste os principais componentes definidos no `diagram.json`, por exemplo:
-
-- Tipo de placa utilizada  
-- LEDs, botões, sensores, atuadores, etc.  
-- Função de cada componente no sistema  
+| Componente | Função |
+|---|---|
+| **ESP32 DevKit C v4** | Microcontrolador executando MicroPython |
+| **SSD1306 OLED 128x64** | Display para feedback visual ao operador |
+| **MPU6050** | Acelerômetro 6-DOF para detecção de vibração |
+| **DS18B20** | Sensor de temperatura 1-Wire |
+| **Buzzer** | Alerta sonoro em caso de anomalia |
+| **Resistor 4.7kΩ** | Pull-up no barramento 1-Wire |
 
 ---
 
 ## 4️⃣ Decisões Técnicas Relevantes
 
-Explique brevemente decisões importantes tomadas durante o desenvolvimento, como:
-
-- Organização do código  
-- Uso de funções, estados ou constantes  
-- Estratégias para temporização ou controle lógico  
+- **Algoritmo Z-Score:** Utilizado para detecção de vibração incomum, isolando o ruido natural do sensor através da calibração inicial
+- **Constantes configuráveis:** `AMOSTRAS`, `LIMIAR_ZSCORE`, `LIMIAR_TEMP` para ajuste fácil
+- **Tempo de conversão DS18B20:** `sleep_ms(750)` aguarda conversão completa antes da leitura
 
 ---
 
 ## 5️⃣ Resultados Obtidos
 
-Descreva o comportamento final do sistema:
-
-- O que funciona corretamente  
-- Quais requisitos foram atendidos  
-- Resultado observado na simulação do Wokwi  
-
----
-
-## 6️⃣ Comentários Adicionais (Opcional)
-
-Utilize este espaço para comentar, se desejar:
-
-- Dificuldades encontradas  
-- Limitações da solução  
-- Melhorias que você faria com mais tempo  
-- Principais aprendizados durante o desafio  
+- Calibragem automática na inicialização com média e desvio exibidos no serial
+- Leitura contínua de aceleração (X/Y/Z em g) e temperatura (°C)
+- Display OLED mostra "Status: OK" ou "!! ANOMALIA !!" com motivo
+- Alerta sonoro emitido ao detectar vibração ou temperatura anômala
+- GitHub Actions executando simulação via Wokwi CLI
 
 ---
 
-> ✅ Este relatório faz parte da avaliação técnica.  
-> Clareza, objetividade e organização são tão importantes quanto o funcionamento do código.
+## 6️⃣ Alterações no processo de build/CI
+
+### CI (`.github/workflows/ci.yml`)
+
+| Campo | Antes | Depois |
+|-------|-------|--------|
+| `expect_text` | `'Teste'` | `'Normal \| '` |
+
+O texto esperado na saída serial foi atualizado de `'Teste'` para `'Normal | '` para refletir o novo formato de output do projeto.
+
+---
+
+### Dockerfile
+
+Os módulos `mpu6050.py` e `ssd1306.py` (drivers para o acelerômetro e display OLED) são copiados separadamente para o filesystem da ESP32, permitindo importação via `import mpu6050` e `import ssd1306`.
 
 ---
 
