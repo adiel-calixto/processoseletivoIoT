@@ -98,7 +98,7 @@ while True:
 
     # Log serial
     status = "ANOMALIA!" if anomalia else "Normal"
-    print(f"X={x:.2f} Y={y:.2f} Z={z:.2f} T={temp:.1f}C | {status}")
+    print(f"{status} | X={x:.2f} Y={y:.2f} Z={z:.2f} T={temp:.1f}C")
 
     # Display OLED
     if anomalia:
